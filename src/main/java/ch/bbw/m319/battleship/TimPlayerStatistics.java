@@ -5,28 +5,31 @@ import ch.bbw.m319.battleship.api.BattleshipField;
 import ch.bbw.m319.battleship.api.BattleshipPlayer;
 import ch.bbw.m319.battleship.api.ShipPosition;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
-public class TimPlayer implements BattleshipPlayer {
+public class TimPlayerStatistics implements BattleshipPlayer {
 
-    public TimPlayer() {
+    public TimPlayerStatistics() {
         shotAtPos = new ArrayList<>();
     }
 
     public static void main(String[] args) {
-		BattleshipArena.playMultipleAndCount(new TimPlayer(), new RicoPlayer(), 1000);
+		BattleshipArena.playMultipleAndCount(new TimPlayerStatistics(), new RicoPlayer(), 10000);
+				IntSummaryStatistics summaryStats = averageMoveCounts.stream()
+				.mapToInt(Integer::intValue)
+				.summaryStatistics();
+		System.out.println("Average moves per game: " + summaryStats.getAverage());
 	}
 
 	private static final int BOARD_WIDTH = 3;
 
 	private final List<BattleshipField> shotAtPos;
 
+	private final Random random = new Random();
+
 	private List<BattleshipField> nextFieldsToBeHit;
 
-    private final Random random = new Random();
+	private static final List<Integer> averageMoveCounts = new ArrayList<>();
 
 	private boolean isAdjacent(BattleshipField a, BattleshipField b) {
 		int diff = Math.abs(a.ordinal() - b.ordinal());
@@ -88,6 +91,11 @@ public class TimPlayer implements BattleshipPlayer {
 			case C2 -> List.of(BattleshipField.C1, BattleshipField.C3, BattleshipField.B2);
 			default -> List.of(BattleshipField.C2, BattleshipField.B3);
 		};
+	}
+
+	@Override
+	public void gameFinished(ShipPosition opponentShip, boolean youHaveWon) {
+		averageMoveCounts.add(shotAtPos.size());
 	}
 
 	private BattleshipField getRandomFieldFromList(List<BattleshipField> targetedFields) {

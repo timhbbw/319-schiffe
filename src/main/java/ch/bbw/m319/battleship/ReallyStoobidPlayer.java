@@ -5,12 +5,12 @@ import ch.bbw.m319.battleship.api.BattleshipField;
 import ch.bbw.m319.battleship.api.BattleshipPlayer;
 import ch.bbw.m319.battleship.api.ShipPosition;
 
-public class StaticPlayer implements BattleshipPlayer {
+public class ReallyStoobidPlayer implements BattleshipPlayer {
 
     public static void main(String[] args) {
         // let it play against itself
         //BattleshipArena.playOnce(new StaticPlayer(), new StaticPlayer());
-        BattleshipArena.playMultipleAndCount(new StaticPlayer(), new StaticPlayer(), 1000);
+        BattleshipArena.playMultipleAndCount(new ReallyStoobidPlayer(), new ReallyStoobidPlayer(), 1000);
     }
 
     @Override

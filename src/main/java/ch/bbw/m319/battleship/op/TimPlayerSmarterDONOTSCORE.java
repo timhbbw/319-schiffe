@@ -1,5 +1,6 @@
-package ch.bbw.m319.battleship;
+package ch.bbw.m319.battleship.op;
 
+import ch.bbw.m319.battleship.RicoPlayer;
 import ch.bbw.m319.battleship.api.BattleshipArena;
 import ch.bbw.m319.battleship.api.BattleshipField;
 import ch.bbw.m319.battleship.api.BattleshipPlayer;
@@ -10,14 +11,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
-public class TimPlayer implements BattleshipPlayer {
+public class TimPlayerSmarterDONOTSCORE implements BattleshipPlayer {
 
-    public TimPlayer() {
+    public TimPlayerSmarterDONOTSCORE() {
         shotAtPos = new ArrayList<>();
     }
 
     public static void main(String[] args) {
-		BattleshipArena.playMultipleAndCount(new TimPlayer(), new RicoPlayer(), 1000);
+		BattleshipArena.playMultipleAndCount(new TimPlayerSmarterDONOTSCORE(), new RicoPlayer(), 1000);
 	}
 
 	private static final int BOARD_WIDTH = 3;
@@ -28,6 +29,8 @@ public class TimPlayer implements BattleshipPlayer {
 
     private final Random random = new Random();
 
+	private  final List<BattleshipField> optimalFieldsToHit = List.of(BattleshipField.A2, BattleshipField.B1, BattleshipField.B3, BattleshipField.C2);
+
 	private boolean isAdjacent(BattleshipField a, BattleshipField b) {
 		int diff = Math.abs(a.ordinal() - b.ordinal());
 		if (diff == BOARD_WIDTH) return true;
@@ -37,17 +40,20 @@ public class TimPlayer implements BattleshipPlayer {
 		return false;
 	}
 
-    private BattleshipField getRandomField() {
+    private BattleshipField getRandomPosition() {
 		return BattleshipField.values()[random.nextInt(9)];
 	}
 
 	@Override
 	public ShipPosition placeYourShip() {
-        BattleshipField shipPos1 = BattleshipField.values()[getRandomField().ordinal()];
-        BattleshipField shipPos2 = BattleshipField.values()[getRandomField().ordinal()];
+        BattleshipField shipPos1 = BattleshipField.values()[getRandomPosition().ordinal()];
+        BattleshipField shipPos2 = BattleshipField.values()[getRandomPosition().ordinal()];
 
 		while(!isAdjacent(shipPos1, shipPos2)) {
-			shipPos2 = BattleshipField.values()[getRandomField().ordinal()];
+			shipPos2 = BattleshipField.values()[getRandomPosition().ordinal()];
+		}
+		if (nextFieldsToBeHit != null) {
+			nextFieldsToBeHit = null;
 		}
 		shotAtPos.clear();
         return new ShipPosition(shipPos1, shipPos2);
@@ -60,7 +66,7 @@ public class TimPlayer implements BattleshipPlayer {
 			if (nextFieldsToBeHit != null && !new HashSet<>(shotAtPos).containsAll(nextFieldsToBeHit)) {
 				shot = getRandomFieldFromList(nextFieldsToBeHit);
 			} else {
-				shot = getRandomField();
+				shot = getRandomFieldFromList(optimalFieldsToHit);
 			}
 		}
 		while (shotAtPos.contains(shot));
@@ -90,7 +96,7 @@ public class TimPlayer implements BattleshipPlayer {
 		};
 	}
 
-	private BattleshipField getRandomFieldFromList(List<BattleshipField> targetedFields) {
+	public BattleshipField getRandomFieldFromList(List<BattleshipField> targetedFields) {
 		return targetedFields.get(random.nextInt(targetedFields.size()));
 	}
 }
